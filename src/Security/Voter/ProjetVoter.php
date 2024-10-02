@@ -46,9 +46,12 @@ class ProjetVoter extends Voter
 
         switch ($attribute) {
             case self::EDIT:
-            case self::DELETE:
                 // Only admin or manager can edit/delete projects
-                return in_array($companyRoleAdmin, $userRoles) || in_array($companyRoleManager, $userRoles);
+            return in_array($companyRoleAdmin, $userRoles) || in_array($companyRoleManager, $userRoles);
+
+            case self::DELETE:
+                // Only admin delete projects
+                return in_array($companyRoleAdmin, $userRoles);
 
             case self::VIEW:
                 // Any role (admin, manager, consultant) can view the project
