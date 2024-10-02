@@ -12,47 +12,59 @@ use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\GetCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ApiResource(security: "is_granted('ROLE_USER')")]
-#[Get(security: "is_granted('consultant', object)")]
-#[Put(security: "is_granted('manager', object)")]
-#[Delete(security: "is_granted('admin', object)")]
-#[GetCollection]
-#[Post(securityPostDenormalize: "is_granted('manager', object)")]
-
+#[ApiResource(
+    operations: [
+        new Get(security: "is_granted('view', object)"), // Vue basée sur le rôle de l'utilisateur dans la société
+        new Put(security: "is_granted('edit', object)"), // Modification réservée aux administrateurs et managers
+        new Delete(security: "is_granted('delete', object)"), // Suppression réservée aux administrateurs
+        new GetCollection, // Récupération de la collection des sociétés auxquelles l'utilisateur appartient
+        new Post(securityPostDenormalize: "is_granted('create', object)") // Création réservée aux managers et administrateurs
+    ], // Accès réservé aux utilisateurs authentifiés
+    normalizationContext: ['groups' => ['societe:read']],
+    denormalizationContext: ['groups' => ['societe:write']],
+    security: "is_granted('ROLE_USER')"
+)]
 #[ORM\Entity(repositoryClass: SocieteRepository::class)]
 class Societe
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['societe:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['societe:read', 'societe:write'])]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['societe:read', 'societe:write'])]
     private ?string $numeroSiret = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['societe:read', 'societe:write'])]
     private ?string $adresse = null;
 
     /**
      * @var Collection<int, Projet>
      */
     #[ORM\OneToMany(targetEntity: Projet::class, mappedBy: 'societe')]
+    #[Groups(['societe:read'])]
     private Collection $projets;
 
     /**
      * @var Collection<int, User>
      */
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'societes')]
-    private Collection $Users;
+    #[Groups(['societe:read'])]
+    private Collection $users;
 
     public function __construct()
     {
         $this->projets = new ArrayCollection();
-        $this->Users = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -131,13 +143,13 @@ class Societe
      */
     public function getUsers(): Collection
     {
-        return $this->Users;
+        return $this->users;
     }
 
     public function addUser(User $user): static
     {
-        if (!$this->Users->contains($user)) {
-            $this->Users->add($user);
+        if (!$this->users->contains($user)) {
+            $this->users->add($user);
         }
 
         return $this;
@@ -145,7 +157,7 @@ class Societe
 
     public function removeUser(User $user): static
     {
-        $this->Users->removeElement($user);
+        $this->users->removeElement($user);
 
         return $this;
     }

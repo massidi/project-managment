@@ -11,32 +11,43 @@ use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\GetCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ApiResource(security: "is_granted('ROLE_USER')")]
-#[Get(security: "is_granted('consultant', object)")]
-#[Put(security: "is_granted('manager', object)")]
-#[Delete(security: "is_granted('manager', object)")]
-#[GetCollection]
-#[Post(securityPostDenormalize: "is_granted('manager', object)")]
-
+#[ApiResource(
+    operations: [
+        new Get(normalizationContext: ['groups' => ['projet:read']], security: "is_granted('view', object)"), // Les consultants peuvent consulter
+        new Put(denormalizationContext: ['groups' => ['projet:write']], security: "is_granted('edit', object)"), // Les managers et admins peuvent modifier
+        new Delete(security: "is_granted('delete', object)"), // Suppression réservée aux administrateurs
+        new GetCollection(normalizationContext: ['groups' => ['projet:read']]), // Liste des projets accessibles à tous
+        new Post(denormalizationContext: ['groups' => ['projet:write']], securityPostDenormalize: "is_granted('edit', object)") // Création réservée aux managers et admins
+    ], // L'accès à l'API est réservé aux utilisateurs authentifiés
+    normalizationContext: ['groups' => ['projet:read']],
+    denormalizationContext: ['groups' => ['projet:write']],
+    security: "is_granted('ROLE_USER')"
+)]
 #[ORM\Entity(repositoryClass: ProjetRepository::class)]
 class Projet
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['projet:read', 'societe:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['projet:read', 'projet:write', 'societe:read'])]
     private ?string $titre = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['projet:read', 'projet:write'])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(['projet:read'])]
     private ?\DateTimeInterface $dateCreation = null;
 
     #[ORM\ManyToOne(inversedBy: 'projets')]
+    #[Groups(['projet:read', 'projet:write'])]
     private ?Societe $societe = null;
 
     public function getId(): ?int

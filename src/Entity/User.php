@@ -16,11 +16,11 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\GetCollection;
 
 #[ApiResource(security: "is_granted('ROLE_USER')")]
-#[Get(security: "is_granted('consultant', object)")]
-#[Put(security: "is_granted('manager', object)")]
-#[Delete(security: "is_granted('admin', object)")]
+#[Get(security: "is_granted('edit', object)")]
+#[Put(security: "is_granted('edit', object)")]
+#[Delete(security: "is_granted('delete', object)")]
 #[GetCollection]
-#[Post(securityPostDenormalize: "is_granted('manager', object)")]
+#[Post(securityPostDenormalize: "is_granted('edit', object)")]
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
