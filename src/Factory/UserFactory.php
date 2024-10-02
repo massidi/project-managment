@@ -16,7 +16,7 @@ final class UserFactory extends PersistentProxyObjectFactory
     public function __construct(private readonly UserPasswordHasherInterface $passwordHasher)
     {
         parent::__construct();
-        $this->password = $this->passwordHasher->hashPassword(new User(), 'my_password');
+        $this->password = $this->passwordHasher->hashPassword(new User(), '1234');
     }
 
     public static function class(): string
@@ -29,7 +29,7 @@ final class UserFactory extends PersistentProxyObjectFactory
         return [
             'email'    => self::faker()->unique()->email(),
             'password' => $this->password,
-            'roles'    => [],
+            'roles'    => ["admin"],
         ];
     }
 }

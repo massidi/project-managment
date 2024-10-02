@@ -8,6 +8,19 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\GetCollection;
+
+#[ApiResource(security: "is_granted('ROLE_USER')")]
+#[Get(security: "is_granted('consultant', object)")]
+#[Put(security: "is_granted('manager', object)")]
+#[Delete(security: "is_granted('admin', object)")]
+#[GetCollection]
+#[Post(securityPostDenormalize: "is_granted('manager', object)")]
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
