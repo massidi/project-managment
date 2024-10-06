@@ -55,16 +55,15 @@ class Societe
     private Collection $projets;
 
     /**
-     * @var Collection<int, User>
+     * @var Collection<int, SocieteUser>
      */
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'societes')]
-    #[Groups(['societe:read'])]
-    private Collection $users;
+    #[ORM\OneToMany(targetEntity: SocieteUser::class, mappedBy: 'Societe')]
+    private Collection $societeUsers;
 
     public function __construct()
     {
         $this->projets = new ArrayCollection();
-        $this->users = new ArrayCollection();
+        $this->societeUsers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -138,27 +137,92 @@ class Societe
         return $this;
     }
 
+
     /**
-     * @return Collection<int, User>
+     * @return Collection<int, SocieteUser>
      */
-    public function getUsers(): Collection
+    public function getSocieteUsers(): Collection
     {
-        return $this->users;
+        return $this->societeUsers;
     }
 
-    public function addUser(User $user): static
+    public function addSocieteUser(SocieteUser $societeUser): static
     {
-        if (!$this->users->contains($user)) {
-            $this->users->add($user);
+        if (!$this->societeUsers->contains($societeUser)) {
+            $this->societeUsers->add($societeUser);
+            $societeUser->setSociete($this);
         }
 
         return $this;
     }
 
-    public function removeUser(User $user): static
+    public function removeSocieteUser(SocieteUser $societeUser): static
     {
-        $this->users->removeElement($user);
+        if ($this->societeUsers->removeElement($societeUser)) {
+            // set the owning side to null (unless already changed)
+            if ($societeUser->getSociete() === $this) {
+                $societeUser->setSociete(null);
+            }
+        }
 
         return $this;
+    }
+    /**
+     * @param User $userParams
+     * @return bool
+     */
+    public function isAdmin(User $userParams): bool {
+        foreach ($this->getSocieteUsers() as $userSociete) {
+            if ($userParams->getId() === $userSociete->getUser()->getId()
+                &&  $userSociete->isAdmin()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param User $userParams
+     * @return bool
+     */
+    public function isManager(User $userParams): bool {
+        foreach ($this->getSocieteUsers() as $userSociete) {
+            if ($userParams->getId() === $userSociete->getUser()->getId()
+                &&  $userSociete->isManager()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param User $userParams
+     * @return bool
+     */
+    public function isMember(User $userParams): bool {
+        foreach ($this->getSocieteUsers() as $userSociete) {
+            if ($userParams->getId() === $userSociete->getUser()->getId()){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param User $userParams
+     * @return bool
+     */
+    public function isConsultant(User $userParams): bool {
+        foreach ($this->getSocieteUsers() as $userSociete) {
+            if ($userParams->getId() === $userSociete->getUser()->getId()
+                &&  $userSociete->isConsultant()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\Patch;
 use App\Repository\ProjetRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -102,4 +103,36 @@ class Projet
 
         return $this;
     }
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function isAdmin(User $user): bool {
+        return $this->getSociete()->isAdmin($user);
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function isManager(User $user): bool {
+        return $this->getSociete()->isManager($user);
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function isMember(User $user): bool {
+        return $this->getSociete()->isMember($user);
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function isConsultant(User $user): bool {
+        return $this->getSociete()->isConsultant($user);
+    }
+
 }

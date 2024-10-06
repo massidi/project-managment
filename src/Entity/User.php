@@ -47,10 +47,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     /**
-     * @var Collection<int, Societe>
+     * @var Collection<int, SocieteUser>
      */
-    #[ORM\ManyToMany(targetEntity: Societe::class, mappedBy: 'Users')]
+    #[ORM\OneToMany(targetEntity: SocieteUser::class, mappedBy: 'user')]
     private Collection $societes;
+
 
     public function __construct()
     {
@@ -133,29 +134,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Societe>
+     * @return Collection<int, SocieteUser>
      */
     public function getSocietes(): Collection
     {
         return $this->societes;
     }
 
-    public function addSociete(Societe $societe): static
-    {
-        if (!$this->societes->contains($societe)) {
-            $this->societes->add($societe);
-            $societe->addUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeSociete(Societe $societe): static
-    {
-        if ($this->societes->removeElement($societe)) {
-            $societe->removeUser($this);
-        }
-
-        return $this;
-    }
 }
