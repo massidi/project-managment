@@ -2,21 +2,19 @@
 
 namespace App\Security\Voter;
 
+use App\Entity\Societe;
+use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 final class CanCreateSocieteVoter extends Voter
 {
-    public const EDIT = 'POST_EDIT';
-    public const VIEW = 'POST_VIEW';
+    public const string PERMISSION = 'CAN_CREATE_SOCIETE';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        // replace with your own logic
-        // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, [self::EDIT, self::VIEW])
-            && $subject instanceof \App\Entity\CanCreateSociete;
+        return self::PERMISSION === $attribute && $subject instanceof Societe;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
@@ -24,23 +22,13 @@ final class CanCreateSocieteVoter extends Voter
         $user = $token->getUser();
 
         // if the user is anonymous, do not grant access
-        if (!$user instanceof UserInterface) {
+        if (!$user instanceof User) {
+            return false;
+        }
+        if (!$subject instanceof Societe) {
             return false;
         }
 
-        // ... (check conditions and return true to grant permission) ...
-        switch ($attribute) {
-            case self::EDIT:
-                // logic to determine if the user can EDIT
-                // return true or false
-                break;
-
-            case self::VIEW:
-                // logic to determine if the user can VIEW
-                // return true or false
-                break;
-        }
-
-        return false;
+        return true;
     }
 }

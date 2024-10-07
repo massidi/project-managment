@@ -2,7 +2,15 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\OpenApi\Model\Operation;
+use ApiPlatform\OpenApi\Model\Parameter;
+use App\ApiResource\AddUserSocieteInput;
 use App\Repository\SocieteRepository;
+use App\State\AddDefaultUserSocieteProcessor;
+use App\State\AddUserSocieteProcessor;
+use App\State\GetOneProjetBySocieteProvider;
+use App\State\GetProjetSocieteProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -13,15 +21,95 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\GetCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ApiResource(
     operations: [
-        new Get(security: "is_granted('view', object)"), // Vue basée sur le rôle de l'utilisateur dans la société
-        new Put(security: "is_granted('edit', object)"), // Modification réservée aux administrateurs et managers
-        new Delete(security: "is_granted('delete', object)"), // Suppression réservée aux administrateurs
-        new GetCollection, // Récupération de la collection des sociétés auxquelles l'utilisateur appartient
-        new Post(securityPostDenormalize: "is_granted('create', object)") // Création réservée aux managers et administrateurs
-    ], // Accès réservé aux utilisateurs authentifiés
+        new Get(
+            normalizationContext: ['groups' => ['societe:detail']],
+            security: "is_granted('CAN_ACCESS_SOCIETE', object)",
+        ), // Vue basée sur le rôle de l'utilisateur dans la société
+        new Put(
+            security: "is_granted('CAN_UPDATE_SOCIETE', object)"
+        ), // Modification réservée aux administrateurs et managers
+        new Patch(
+            security: "is_granted('CAN_UPDATE_SOCIETE', object)"
+        ), // Modification réservée aux administrateurs et managers
+        new Delete(
+            security: "is_granted('CAN_DELETE_SOCIETE', object)"
+        ), // Suppression réservée aux administrateurs
+        new GetCollection(
+        ), // Récupération de la collection des sociétés auxquelles l'utilisateur appartient
+        new Post(
+            securityPostDenormalize: "is_granted('CAN_CREATE_SOCIETE', object)",
+            processor: AddDefaultUserSocieteProcessor::class
+        ), // Création réservée aux managers et administrateurs
+
+        new Post(
+            uriTemplate: '/societe/{id}/user',
+            openapi: new Operation(
+                operationId: "Assigner un utilisateur dans une société avec ses droits",
+                responses  : [
+                    '200' => [
+                        'description' => "Assigner un utilisateur dans une société avec ses droits",
+                    ],
+                ],
+                summary    :  "Assigner un utilisateur dans une société avec ses droits",
+                description:  "Assigner un utilisateur dans une société avec ses droits",
+            ),
+            description: 'Assigner un utilisateur dans une société avec ses droits',
+            input: AddUserSocieteInput::class,
+            processor: AddUserSocieteProcessor::class
+        ), // Affecte un utilisateur dans une société
+        new Get(
+            uriTemplate: '/societe/{id}/projets',
+            openapi: new Operation(
+                operationId: "Récuperation de la liste des projets d'une société",
+                responses  : [
+                    '200' => [
+                        'description' => "Récuperation de la liste des projets d'une société",
+                    ],
+                ],
+                summary    :  "Récuperation de la liste des projets d'une société",
+                description:  "Récuperation de la liste des projets d'une société",
+            ),
+            description: "Récuperation de la liste des projets d'une société",
+            securityPostDenormalize: "is_granted('CAN_ACCESS_SOCIETE', object)",
+            provider: GetProjetSocieteProvider::class,
+        ), //Récupérer la liste des projets d'une société à laquelle ils appartiennent.
+        new Get(
+            uriTemplate: '{id_societe}/societe/{id_projet}/projets',
+            openapi: new Operation(
+                operationId: "Consulter les détails d’un projet spécifique au sein d'une société.",
+                responses  : [
+                    '200' => [
+                        'description' => "Consulter les détails d’un projet spécifique au sein d'une société.",
+                    ],
+                ],
+                summary    :  "Consulter les détails d’un projet spécifique au sein d'une société.",
+                description:  "Consulter les détails d’un projet spécifique au sein d'une société.",
+                parameters : [
+                    new Parameter(
+                        name: 'id_societe',
+                        in: 'path',
+                        description: 'id société',
+                        required: true,
+                        schema: ['type' => 'integer', 'min' => 1],
+                    ),
+                    new Parameter(
+                        name: 'id_projet',
+                        in: 'path',
+                        description: 'id projet',
+                        required: true,
+                        schema: ['type' => 'integer', 'min' => 1],
+                    )
+                ]
+            ),
+            description: "Récuperation d'un projet spécifique d'une société",
+            provider: GetOneProjetBySocieteProvider::class,
+        ), //Consulter les détails d’un projet spécifique au sein d'une société.
+    ],
     normalizationContext: ['groups' => ['societe:read']],
     denormalizationContext: ['groups' => ['societe:write']],
     security: "is_granted('ROLE_USER')"
@@ -35,14 +123,33 @@ class Societe
     #[Groups(['societe:read'])]
     private ?int $id = null;
 
+    #[Assert\NotBlank]
+    #[Assert\Length(
+        min: 10,
+        max: 40,
+        minMessage: 'Your first name must be at least {{ limit }} characters long',
+        maxMessage: 'Your first name cannot be longer than {{ limit }} characters',
+    )]
     #[ORM\Column(length: 255)]
     #[Groups(['societe:read', 'societe:write'])]
     private ?string $nom = null;
 
+    #[Assert\NotBlank]
+    #[Assert\Regex(
+        pattern: '/\d{14}/',
+        message: 'Votre numéro siret incorrect'
+    )]
     #[ORM\Column(length: 255)]
     #[Groups(['societe:read', 'societe:write'])]
     private ?string $numeroSiret = null;
 
+    #[Assert\NotBlank]
+    #[Assert\Length(
+        min: 10,
+        max: 50,
+        minMessage: 'Votre adresse doit être au minimum {{ limit }} caractères longs',
+        maxMessage: 'Votre adresse ne peut pas dépasse {{ limit }} caractères',
+    )]
     #[ORM\Column(length: 255)]
     #[Groups(['societe:read', 'societe:write'])]
     private ?string $adresse = null;
@@ -57,7 +164,7 @@ class Societe
     /**
      * @var Collection<int, SocieteUser>
      */
-    #[ORM\OneToMany(targetEntity: SocieteUser::class, mappedBy: 'Societe')]
+    #[ORM\OneToMany(targetEntity: SocieteUser::class, mappedBy: 'societe',cascade: ["persist"])]
     private Collection $societeUsers;
 
     public function __construct()

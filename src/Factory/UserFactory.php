@@ -29,7 +29,7 @@ final class UserFactory extends PersistentProxyObjectFactory
         return [
             'email'    => self::faker()->unique()->email(),
             'password' => $this->password,
-            'roles'    => ["admin"],
+            'roles'    => [],
         ];
     }
 }

@@ -22,7 +22,7 @@ class SocieteUser
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class,  inversedBy: 'societe')]
+    #[ORM\ManyToOne(targetEntity: User::class,  inversedBy: 'societes')]
     #[Groups([ 'societe:write'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;

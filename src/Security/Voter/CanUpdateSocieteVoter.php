@@ -2,21 +2,19 @@
 
 namespace App\Security\Voter;
 
+use App\Entity\Societe;
+use App\Entity\SocieteUser;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 final class CanUpdateSocieteVoter extends Voter
 {
-    public const EDIT = 'POST_EDIT';
-    public const VIEW = 'POST_VIEW';
+    public const string PERMISSION = 'CAN_UPDATE_SOCIETE';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        // replace with your own logic
-        // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, [self::EDIT, self::VIEW])
-            && $subject instanceof \App\Entity\CanUpdateSociete;
+        return self::PERMISSION === $attribute && $subject instanceof Societe;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
@@ -27,20 +25,14 @@ final class CanUpdateSocieteVoter extends Voter
         if (!$user instanceof UserInterface) {
             return false;
         }
-
-        // ... (check conditions and return true to grant permission) ...
-        switch ($attribute) {
-            case self::EDIT:
-                // logic to determine if the user can EDIT
-                // return true or false
-                break;
-
-            case self::VIEW:
-                // logic to determine if the user can VIEW
-                // return true or false
-                break;
+        // if the user is anonymous, do not grant access
+        if (!$subject instanceof Societe) {
+            return false;
         }
+        $map = $subject->getSocieteUsers()->filter(function (SocieteUser $societeUser) use ($user) {
+            return $user === $societeUser->getUser() && ($societeUser->isAdmin() || $societeUser->isManager()) ;
+        });
 
-        return false;
+        return !$map->isEmpty();
     }
 }
