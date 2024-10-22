@@ -20,8 +20,19 @@ readonly class GetOneProjetBySocieteProvider implements ProviderInterface
     {
     }
 
+    /**
+     * Provides a project based on the provided operation and URI variables.
+     *
+     * @param Operation $operation The operation to be processed.
+     * @param array $uriVariables Variables extracted from the URI, including 'id_societe' and 'id_projet'.
+     * @param array $context Additional context for processing the request.
+     * @return object|array|null The project object if found, otherwise null.
+     * @throws AccessDeniedHttpException If access is denied to the specified company.
+     * @throws NotFoundHttpException If the specified project does not exist in the company.
+     */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
+
         $idSociete = $uriVariables['id_societe'] ?? null;
         $idProjet = $uriVariables['id_projet'] ?? null;
         $societe = $this->societeRepository->find($idSociete);
@@ -34,7 +45,7 @@ readonly class GetOneProjetBySocieteProvider implements ProviderInterface
         })->first();
 
         if (!$projet instanceof Projet) {
-            throw new NotFoundHttpException("Le projet n'existe pas dans cette société.");
+            throw new NotFoundHttpException("The project does not exist in this company.");
         }
 
         return $projet;

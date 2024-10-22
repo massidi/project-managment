@@ -29,86 +29,85 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(
             normalizationContext: ['groups' => ['societe:detail']],
             security: "is_granted('CAN_ACCESS_SOCIETE', object)",
-        ), // Vue basée sur le rôle de l'utilisateur dans la société
+        ), // View based on the user's role in the company
         new Put(
             security: "is_granted('CAN_UPDATE_SOCIETE', object)"
-        ), // Modification réservée aux administrateurs et managers
+        ), // Modification reserved for administrators and managers
         new Patch(
             security: "is_granted('CAN_UPDATE_SOCIETE', object)"
-        ), // Modification réservée aux administrateurs et managers
+        ), // Modification reserved for administrators and managers
         new Delete(
             security: "is_granted('CAN_DELETE_SOCIETE', object)"
-        ), // Suppression réservée aux administrateurs
-        new GetCollection(
-        ), // Récupération de la collection des sociétés auxquelles l'utilisateur appartient
+        ), // Deletion reserved for administrators
+        new GetCollection(), // Retrieval of the collection of companies to which the user belongs
         new Post(
             securityPostDenormalize: "is_granted('CAN_CREATE_SOCIETE', object)",
             processor: AddDefaultUserSocieteProcessor::class
-        ), // Création réservée aux managers et administrateurs
+        ), // Creation reserved for managers and administrators
 
         new Post(
             uriTemplate: '/societe/{id}/user',
             openapi: new Operation(
-                operationId: "Assigner un utilisateur dans une société avec ses droits",
-                responses  : [
+                operationId: "Assign a user to a company with their rights",
+                responses: [
                     '200' => [
-                        'description' => "Assigner un utilisateur dans une société avec ses droits",
+                        'description' => "Assign a user to a company with their rights",
                     ],
                 ],
-                summary    :  "Assigner un utilisateur dans une société avec ses droits",
-                description:  "Assigner un utilisateur dans une société avec ses droits",
+                summary: "Assign a user to a company with their rights",
+                description: "Assign a user to a company with their rights",
             ),
-            description: 'Assigner un utilisateur dans une société avec ses droits',
+            description: 'Assign a user to a company with their rights',
             input: AddUserSocieteInput::class,
             processor: AddUserSocieteProcessor::class
-        ), // Affecte un utilisateur dans une société
+        ), // Assign a user to a company
         new Get(
             uriTemplate: '/societe/{id}/projets',
             openapi: new Operation(
-                operationId: "Récuperation de la liste des projets d'une société",
-                responses  : [
+                operationId: "Retrieve the list of projects of a company",
+                responses: [
                     '200' => [
-                        'description' => "Récuperation de la liste des projets d'une société",
+                        'description' => "Retrieve the list of projects of a company",
                     ],
                 ],
-                summary    :  "Récuperation de la liste des projets d'une société",
-                description:  "Récuperation de la liste des projets d'une société",
+                summary: "Retrieve the list of projects of a company",
+                description: "Retrieve the list of projects of a company",
             ),
-            description: "Récuperation de la liste des projets d'une société",
+            description: "Retrieve the list of projects of a company",
             securityPostDenormalize: "is_granted('CAN_ACCESS_SOCIETE', object)",
             provider: GetProjetSocieteProvider::class,
-        ), //Récupérer la liste des projets d'une société à laquelle ils appartiennent.
+        ), //Retrieve the list of projects belonging to a company.
         new Get(
             uriTemplate: '{id_societe}/societe/{id_projet}/projets',
             openapi: new Operation(
-                operationId: "Consulter les détails d’un projet spécifique au sein d'une société.",
-                responses  : [
+                operationId: "Consult the details of a specific project within a company.",
+                responses: [
                     '200' => [
-                        'description' => "Consulter les détails d’un projet spécifique au sein d'une société.",
+                        'description' => "Consult the details of a specific project within a company.",
                     ],
                 ],
-                summary    :  "Consulter les détails d’un projet spécifique au sein d'une société.",
-                description:  "Consulter les détails d’un projet spécifique au sein d'une société.",
-                parameters : [
+                summary: "Consult the details of a specific project within a company.",
+                description: "Consult the details of a specific project within a company.",
+                parameters: [
                     new Parameter(
                         name: 'id_societe',
                         in: 'path',
-                        description: 'id société',
+                        description: 'company id',
                         required: true,
                         schema: ['type' => 'integer', 'min' => 1],
                     ),
                     new Parameter(
                         name: 'id_projet',
                         in: 'path',
-                        description: 'id projet',
+                        description: 'project id',
                         required: true,
                         schema: ['type' => 'integer', 'min' => 1],
                     )
                 ]
             ),
-            description: "Récuperation d'un projet spécifique d'une société",
+            description: "Retrieval of a specific project from a company",
             provider: GetOneProjetBySocieteProvider::class,
-        ), //Consulter les détails d’un projet spécifique au sein d'une société.
+        ), //Consult the details of a specific project within a company.
     ],
     normalizationContext: ['groups' => ['societe:read']],
     denormalizationContext: ['groups' => ['societe:write']],
@@ -137,7 +136,7 @@ class Societe
     #[Assert\NotBlank]
     #[Assert\Regex(
         pattern: '/\d{14}/',
-        message: 'Votre numéro siret incorrect'
+        message: 'Your siret number is incorrect'
     )]
     #[ORM\Column(length: 255)]
     #[Groups(['societe:read', 'societe:write'])]
@@ -147,8 +146,8 @@ class Societe
     #[Assert\Length(
         min: 10,
         max: 50,
-        minMessage: 'Votre adresse doit être au minimum {{ limit }} caractères longs',
-        maxMessage: 'Votre adresse ne peut pas dépasse {{ limit }} caractères',
+        minMessage: 'Your address must be at least {{ limit }} characters long',
+        maxMessage: 'Your address cannot exceed {{ limit }} characters',
     )]
     #[ORM\Column(length: 255)]
     #[Groups(['societe:read', 'societe:write'])]

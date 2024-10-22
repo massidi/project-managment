@@ -23,19 +23,19 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Patch(
             denormalizationContext: ['groups' => ['projet:update']],
             security: "is_granted('CAN_UPDATE_PROJECT_IN_SOCIETE', object)"
-        ), // Les managers et admins peuvent modifier
+        ), // Managers and admins can modify
         new Delete(
             security: "is_granted('CAN_DELETE_PROJECT_IN_SOCIETE', object)"
-        ), // Suppression réservée aux administrateurs
+        ), // Deletion reserved for administrators
         new GetCollection(
             normalizationContext: ['groups' => ['projet:read']],
-            securityPostDenormalize: "is_granted('CAN_ACCESS_PROJECT', object)"), // Liste des projets accessibles à tous
+            securityPostDenormalize: "is_granted('CAN_ACCESS_PROJECT', object)"), // List of projects accessible to all
         new Post(
             denormalizationContext: ['groups' => ['projet:write']],
-            securityPostDenormalize : 'is_granted("CAN_CREATE_PROJECT_IN_SOCIETE", object)',
-        ) // Création réservée aux managers et admins
-    ], // L'accès à l'API est réservé aux utilisateurs authentifiés
-    normalizationContext: ['groups' => ['projet:read','projet:update']],
+            securityPostDenormalize: 'is_granted("CAN_CREATE_PROJECT_IN_SOCIETE", object)',
+        ) // Creation reserved for managers and admins
+    ], // Access to the API is reserved for authenticated users
+    normalizationContext: ['groups' => ['projet:read', 'projet:update']],
     denormalizationContext: ['groups' => ['projet:write']],
     security: "is_granted('ROLE_USER')"
 )]
@@ -54,8 +54,8 @@ class Projet
     #[Assert\Length(
         min: 10,
         max: 50,
-        minMessage: 'Votre titre doit être au minimum {{ limit }} caractères longs',
-        maxMessage: 'Votre titre ne peut pas dépasse {{ limit }} caractères',
+        minMessage: 'Your description must be at least {{ limit }} characters long',
+        maxMessage: 'Your description cannot exceed {{ limit }} characters',
     )]
     #[Groups(['projet:read', 'projet:write', 'societe:read', 'projet:update'])]
     private ?string $titre = null;
@@ -65,8 +65,8 @@ class Projet
     #[Assert\Length(
         min: 20,
         max: 100,
-        minMessage: 'Votre description doit être au minimum {{ limit }} caractères longs',
-        maxMessage: 'Votre description ne peut pas dépasse {{ limit }} caractères',
+        minMessage: 'Your description must be at least {{ limit }} characters long',
+        maxMessage: 'Your description cannot exceed {{ limit }} characters',
     )]
     #[Groups(['projet:read', 'projet:write', 'projet:update','societe:read'])]
     private ?string $description = null;

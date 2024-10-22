@@ -36,8 +36,7 @@ readonly class GetProjetSocieteProvider implements ProviderInterface
         /** @var Societe $societe */
         $societe = $this->societeRepository->find($id);
         if (!$societe){
-            throw new NotFoundHttpException("Aucune société corresponds à l'id ".$id);
-        }
+            throw new NotFoundHttpException("No company corresponds to the id " . $id);        }
 
         if (!$this->authorizationChecker->isGranted('CAN_ACCESS_SOCIETE', $societe)) {
             throw new AccessDeniedHttpException('Access Denied.');

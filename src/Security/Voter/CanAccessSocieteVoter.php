@@ -12,11 +12,17 @@ final class CanAccessSocieteVoter extends Voter
 {
     public const string PERMISSION = 'CAN_ACCESS_SOCIETE';
 
+    /**
+     * Determines if the attribute and subject are supported.
+     */
     protected function supports(string $attribute, mixed $subject): bool
     {
         return self::PERMISSION === $attribute && $subject instanceof Societe;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
@@ -29,7 +35,7 @@ final class CanAccessSocieteVoter extends Voter
             return false;
         }
 
-        return $subject->isMember($user) ;
+        return $subject->isMember($user);
 
     }
 }

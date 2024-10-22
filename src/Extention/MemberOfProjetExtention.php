@@ -20,18 +20,27 @@ readonly class MemberOfProjetExtention implements QueryCollectionExtensionInterf
 
     }
 
+    /**
+     * Applies filtering to the query builder based on the logged-in user and resource class.
+     *
+     * @param QueryBuilder $queryBuilder The query builder to modify.
+     * @param QueryNameGeneratorInterface $queryNameGenerator The query name generator.
+     * @param string $resourceClass The resource class for the query.
+     * @param Operation|null $operation The operation being performed, if any.
+     * @param array $context Additional context for the operation.
+     */
     public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
     {
         $user = $this->security->getUser();
-        if (  !$user instanceof User || !is_a($resourceClass, Projet::class, true)) {
+        if (!$user instanceof User || !is_a($resourceClass, Projet::class, true)) {
             return;
         }
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
-        $queryBuilder->join($rootAlias.'.societe', 'societe')
-                ->addselect('societe')
-                ->join('societe.societeUsers', 'societeUsers')
-                ->andWhere('societeUsers.user = :user')
-                ->setParameter('user', $user);
+        $queryBuilder->join($rootAlias . '.societe', 'societe')
+            ->addselect('societe')
+            ->join('societe.societeUsers', 'societeUsers')
+            ->andWhere('societeUsers.user = :user')
+            ->setParameter('user', $user);
     }
 }

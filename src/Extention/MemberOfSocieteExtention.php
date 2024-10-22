@@ -20,15 +20,25 @@ readonly class MemberOfSocieteExtention implements QueryCollectionExtensionInter
 
     }
 
+    /**
+     * Applies a filter to the provided QueryBuilder to restrict results
+     * based on the current user's associated Societe entities.
+     *
+     * @param QueryBuilder $queryBuilder The QueryBuilder instance to modify.
+     * @param QueryNameGeneratorInterface $queryNameGenerator The query name generator.
+     * @param string $resourceClass The resource class to ensure proper filtering.
+     * @param Operation|null $operation The operation being performed, if any.
+     * @param array $context Additional context for the operation.
+     */
     public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
     {
         $user = $this->security->getUser();
-        if (  !$user instanceof User || !is_a($resourceClass, Societe::class, true)) {
+        if (!$user instanceof User || !is_a($resourceClass, Societe::class, true)) {
             return;
         }
         $rootAlias = $queryBuilder->getRootAliases()[0];
-        $queryBuilder->join($rootAlias.'.societeUsers', 'societeUsers')
-                ->andWhere('societeUsers.user = :user')
-                ->setParameter('user', $user);
+        $queryBuilder->join($rootAlias . '.societeUsers', 'societeUsers')
+            ->andWhere('societeUsers.user = :user')
+            ->setParameter('user', $user);
     }
 }

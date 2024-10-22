@@ -29,6 +29,17 @@ readonly class AddUserSocieteProcessor implements ProcessorInterface
     {
     }
 
+    /**
+     * Processes the addition of a user to a company.
+     *
+     * @param mixed $data The data containing user information.
+     * @param Operation $operation The operation to perform.
+     * @param array $uriVariables Variables from the URI.
+     * @param array $context Additional context for the operation.
+     * @throws NotFoundHttpException If the company or user does not exist.
+     * @throws AccessDeniedHttpException If the user does not have permission to add a user.
+     * @throws BadRequestHttpException If there are validation errors.
+     */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): void
     {
         $idSociete = $uriVariables['id'] ?? null;
@@ -39,12 +50,12 @@ readonly class AddUserSocieteProcessor implements ProcessorInterface
         }
 
         if (!$this->authorizationChecker->isGranted('CAN_ADD_USER_IN_SOCIETE', $societe)) {
-            throw new AccessDeniedHttpException("Vous n'avez pas les droits nécessaires pour effectuer cette action.");
+            throw new AccessDeniedHttpException("You do not have the necessary rights to perform this action..");
         }
 
         $user = $this->userRepository->find($data->userId);
         if (!$user) {
-            throw new NotFoundHttpException("L'utilisateur n'existe pas.");
+            throw new NotFoundHttpException("The User does not exist.");
         }
 
         if (!$data instanceof AddUserSocieteInput){

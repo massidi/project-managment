@@ -21,7 +21,14 @@ readonly class AddDefaultUserSocieteProcessor implements ProcessorInterface
     }
 
     /**
-     * @return Societe|void
+     * Processes the given Societe entity and adds the current user as a default user.
+     *
+     * @param mixed $data The data to process, must be an instance of Societe.
+     * @param Operation $operation The operation context.
+     * @param array $uriVariables The URI variables.
+     * @param array $context Additional context options.
+     * @return Societe|void The processed Societe entity or void.
+     * @throws RuntimeException if the data is not an instance of Societe.
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {

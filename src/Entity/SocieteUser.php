@@ -12,7 +12,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 #[ORM\Entity(repositoryClass: SocieteUserRepository::class)]
 #[UniqueEntity(
     fields: ['user', 'societe'],
-    message: "Impossible d'assigner deux fois un utilisateur dans une même societe ",
+    message: "It is impossible to assign a user to the same company twice.",
     errorPath: 'user',
 )]
 class SocieteUser
@@ -46,17 +46,17 @@ class SocieteUser
     /**
      * @Assert\Type(
      *     type="bool",
-     *     message="La valeur doit être de type booléen."
+     *     message="The value must be of boolean type."
      * )
      */
     private ?bool $isManager = false;
 
     #[ORM\Column]
-    #[Groups([ 'societe:write'])]
+    #[Groups(['societe:write'])]
     /**
      * @Assert\Type(
      *     type="bool",
-     *     message="La valeur doit être de type booléen."
+     *     message="The value must be of boolean type."
      * )
      */
     private ?bool $isConsultant = false;

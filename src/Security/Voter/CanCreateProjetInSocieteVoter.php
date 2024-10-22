@@ -12,11 +12,17 @@ final class CanCreateProjetInSocieteVoter extends Voter
 {
     public const string PERMISSION = 'CAN_CREATE_PROJECT_IN_SOCIETE';
 
+    /**
+     * Determines if the attribute is supported for the given subject.
+     */
     protected function supports(string $attribute, mixed $subject): bool
     {
         return self::PERMISSION === $attribute && $subject instanceof Projet;
     }
 
+    /**
+     * Votes on whether the user can create a project in the society.
+     */
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
 

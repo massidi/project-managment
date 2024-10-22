@@ -12,11 +12,17 @@ final class CanAccessProjetVoter extends Voter
 {
     public const string PERMISSION = 'CAN_ACCESS_PROJECT';
 
+    /**
+     * Determines if the attribute and subject are supported.
+     */
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return self::PERMISSION === $attribute && $subject instanceof  Projet;
+        return self::PERMISSION === $attribute && $subject instanceof Projet;
     }
 
+    /**
+     * Checks if the user has permission to access the project.
+     */
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
 
