@@ -41,7 +41,7 @@ class SocieteUserTest extends KernelTestCase
         $societeUser->setAdmin(false);
         return [
             [
-                $societeUser,'Une personne ne peut pas avoir plusieurs les droits'
+                $societeUser,'A person cannot have multiple rights.'
             ]
         ];
     }

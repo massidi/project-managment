@@ -13,29 +13,29 @@ class ProjetTest extends KernelTestCase
         self::bootKernel();
         $this->validator = $this->getContainer()->get('validator');
     }
-    public function testProjetValidator1()
+    public function testProjectValidator1()
     {
-        $projet = new Projet();
-        $projet->setTitre("titre");
-        $projet->setDescription("description");
-        $projet->setDateCreation(new \DateTime());
-        $errors = $this->validator->validate($projet);
+        $project = new Projet();
+        $project->setTitre("title");
+        $project->setDescription("description");
+        $project->setDateCreation(new \DateTime());
+        $errors = $this->validator->validate($project);
 
         $this->assertEquals(
-            "Votre titre doit être au minimum 10 caractères longs",
+            "translates these two sentences: Your title must be at least 10 characters long",
             $errors[0]->getMessage()
         );
         $this->assertEquals(
-            "Votre description doit être au minimum 20 caractères longs",
+            "Your description must be at least 20 characters long",
             $errors[1]->getMessage()
         );
     }
 
-    public function testProjetValidator2()
+    public function testProjectValidator2()
     {
         $projet = new Projet();
-        $projet->setTitre("développement web avec symfony");
-        $projet->setDescription("Description du cours développement web avec symfony. Auteur: Reddy semi");
+        $projet->setTitre("Web Development with Symfony");
+        $projet->setDescription("Course description on web development with Symfony. Author: Reddy semi");
         $projet->setDateCreation(new \DateTime());
         $errors = $this->validator->validate($projet);
 
